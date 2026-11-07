@@ -1,6 +1,6 @@
 # Démarche à suivre pour le test
 
-Ce dépôt se vérifie de deux façons, qui contrôlent les mêmes choses : `scripts/check_setup.py` parle aux humains (lignes OK, ATTENTION, ERREUR) et `pytest` parle à la machine (38 tests, repris par la CI et par la notation).
+Ce dépôt se vérifie de deux façons, qui contrôlent les mêmes choses : `scripts/check_setup.py` parle aux humains (lignes OK, ATTENTION, ERREUR) et `pytest` parle à la machine (38 tests, repris par la CI et par la notation). Cette version est adaptée à un travail individuel : un auteur Git suffit.
 
 Suivez les six étapes dans l'ordre. Chaque étape donne le résultat attendu : si vous obtenez autre chose, la section « Lire un échec » à la fin dit quoi corriger.
 
@@ -43,7 +43,7 @@ Le script imprime cinq blocs : Python, Paquets, Structure du dépôt, Git, Fiche
 | Ligne | Sens |
 | --- | --- |
 | `OK` | rien à faire |
-| `ATTENTION` | ne bloque pas, mais doit disparaître avant la fin de la séance (fiches vides, un seul auteur de commits) |
+| `ATTENTION` | ne bloque pas, mais doit disparaître avant la fin de la séance (fiches vides, aucun commit) |
 | `ERREUR` | bloque : venv non activé, paquet absent, dossier manquant, pas de dépôt Git, `.venv/` suivi par Git |
 
 Objectif à la fin du TP : `0 erreur(s), 0 avertissement(s)`. Sur une version de Python autre que 3.11, un avertissement de version subsiste : c'est le seul toléré.
@@ -68,13 +68,11 @@ pytest tests/test_environment.py -q     # attendu : 23 passed
 pytest tests/test_git_history.py -q     # attendu : 3 passed
 ```
 
-`test_git_history.py` exige deux auteurs de commits distincts, un par membre du binôme. Tant qu'un seul membre a commité :
+`test_git_history.py` exige au moins un auteur de commit. Vérifiez l'identité enregistrée avec `git shortlog -sn --all`.
 
 ```text
-1 auteur(s) de commits, 2 attendus (un par membre du binôme) : ['Membre A']
+1 auteur(s) de commits, 1 attendu pour le travail individuel : ['Ton nom Git']
 ```
-
-Vérifiez qui a commité avec `git shortlog -sn --all`. Si les deux noms sont identiques, chacun corrige son identité avec `git config --global user.name "Prénom Nom"` puis refait un commit.
 
 ## Étape 5. Tout lancer, comme la CI
 
@@ -109,7 +107,7 @@ Si cette suite passe sans intervention manuelle, le TP est rendu. Supprimez ensu
 | `rubriques vides ou trop courtes : cas2-reglement.md / Justification` | rubrique laissée vide | remplir la rubrique nommée dans le message |
 | `cocher exactement une approche` | zéro ou deux cases `- [x]` | une seule approche par fiche |
 | `la justification doit citer au moins deux critères` | justification sans les lettres de la grille | écrire explicitement `(a)`, `(c)`, etc. |
-| `auteur(s) de commits, 2 attendus` | un seul membre a commité, ou même `user.name` | `git config --global user.name`, puis un vrai commit par membre |
+| `auteur(s) de commits, 1 attendu` | aucun auteur n'est visible dans l'historique | faire un commit avec l'identité Git configurée |
 | `.venv/ a été commité au moins une fois` | `.venv/` est entré dans l'historique | `git rm -r --cached .venv`, commit ; si l'historique est pollué, recommencer le dépôt |
 | `4 skipped` alors que le dépôt est sur GitHub | les tests tournent hors du dossier du dépôt, ou `.git/` absent | lancer pytest depuis la racine du dépôt cloné |
 
@@ -118,5 +116,5 @@ Si cette suite passe sans intervention manuelle, le TP est rendu. Supprimez ensu
 | État | check_setup.py | pytest |
 | --- | --- | --- |
 | Kit décompressé, pas de dépôt Git, fiches vides | 1 erreur, 3 avertissements | 3 failed, 31 passed, 4 skipped |
-| Dépôt Git initialisé, un seul auteur, fiches vides | 0 erreur, 4 avertissements | 4 failed, 34 passed |
-| Fin du TP : fiches remplies, deux auteurs | 0 erreur, 0 avertissement | 38 passed |
+| Dépôt Git initialisé, aucun commit, fiches vides | 0 erreur, avertissement Git | 4 failed, 34 passed |
+| Fin du TP individuel : fiches remplies, un auteur | 0 erreur, 0 avertissement | 38 passed |
