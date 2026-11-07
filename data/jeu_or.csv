@@ -1,0 +1,21 @@
+text,attendu,difficulte,erreur_connue
+Commande reçue en deux jours et emballage soigné,POSITIVE,,
+Pas déçu du tout : le produit fonctionne parfaitement,POSITIVE,négation,
+"Arrivé cassé, bravo le transporteur",NEGATIVE,ironie,
+Le service client a remplacé la pièce manquante dès le lendemain,POSITIVE,,
+La batterie ne tient pas une heure et le vendeur ne répond pas,NEGATIVE,formulation indirecte,sac de mots
+Le premier modèle était défectueux mais l'échange fonctionne parfaitement,POSITIVE,avis mitigé,
+L'emballage est joli mais l'appareil ne s'allume jamais,NEGATIVE,avis mitigé,
+Je ne rachèterai certainement pas cette marque,NEGATIVE,négation,négation mal comprise
+Après trois semaines l'aspirateur fonctionne toujours très bien,POSITIVE,,
+Le colis est arrivé ouvert et il manque deux accessoires,NEGATIVE,,
+Pour une fois le mode d'emploi est clair et vraiment utile,POSITIVE,ironie possible,
+Mon rendez-vous a été annulé deux fois sans prévenir,NEGATIVE,autre domaine,
+Médecin ponctuel accueil chaleureux et consultation claire,POSITIVE,autre domaine,
+La chambre était propre mais l'accueil a été froid et la facture erronée,NEGATIVE,avis mitigé,
+Rien à redire : livraison dans les temps et excellent produit,POSITIVE,négation,
+Génial une troisième panne en un mois,NEGATIVE,ironie,ironie positive en surface
+Le site est simple le paiement sécurisé et la livraison rapide,POSITIVE,,
+Déçu : prix élevé et qualité médiocre,NEGATIVE,avis court,vocabulaire négatif mal reconnu
+Le prix est élevé certes mais la qualité et le service sont excellents,POSITIVE,avis mitigé,
+La commande est arrivée en avance mais ce n'est pas le bon article,NEGATIVE,avis mitigé,

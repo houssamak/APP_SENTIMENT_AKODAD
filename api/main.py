@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.model import load_model
+from api.model import SentimentClassifier, SentimentResult, load_model
 from api.schemas import HealthResponse, PredictRequest, PredictResponse
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -43,7 +43,7 @@ app.add_middleware(
 )
 
 
-def _classifier():
+def _classifier() -> SentimentClassifier:
     clf = getattr(app.state, "classifier", None)
     if clf is None:
         raise HTTPException(status_code=503, detail="Modèle non chargé")
@@ -62,7 +62,7 @@ async def health_check():
 
 
 @app.post("/predict", response_model=PredictResponse, summary="Classifier un texte")
-async def predict(request: PredictRequest):
+async def predict(request: PredictRequest) -> SentimentResult:
     """Renvoie le sentiment (POSITIVE ou NEGATIVE) et la confiance.
 
     - 422 : texte vide ou trop long (Pydantic), ou refusé par le modèle
@@ -72,11 +72,9 @@ async def predict(request: PredictRequest):
     clf = _classifier()
     try:
         result = clf.predict(request.text)
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
     except Exception:
         logger.exception("Erreur lors de la prédiction")
-        raise HTTPException(status_code=500, detail="Erreur interne du serveur")
+        raise HTTPException(status_code=500, detail="Erreur interne du serveur") from None
     logger.info("predict: %r -> %s (%.2f)", request.text[:50], result["label"], result["score"])
     return result
 
