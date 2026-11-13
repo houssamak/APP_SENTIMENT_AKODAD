@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Analyse de sentiment</title>
+    <style>
+      body { font: 1rem system-ui, sans-serif; margin: 3rem auto; max-width: 42rem; padding: 0 1rem; }
+      label { display: block; font-weight: 600; margin-top: 1rem; }
+      input, textarea, button { box-sizing: border-box; font: inherit; padding: .65rem; width: 100%; }
+      button { cursor: pointer; margin-top: 1rem; }
+      #resultat { border-left: .25rem solid #557; margin-top: 1rem; padding: .7rem; }
+      .note { color: #555; font-size: .9rem; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Analyse de sentiment</h1>
+      <p id="etat" role="status">API non vérifiée.</p>
+      <label for="api-url">Adresse de l'API</label>
+      <input id="api-url" type="url" value="http://127.0.0.1:8000">
+      <label for="api-key">Clé client (X-API-Key)</label>
+      <input id="api-key" type="password" autocomplete="off">
+      <p class="note">Cette clé est utilisée dans votre navigateur; ne saisissez pas une clé administrateur.</p>
+      <label for="avis">Avis à analyser</label>
+      <textarea id="avis" rows="5" maxlength="2000" placeholder="Écrivez un avis client"></textarea>
+      <button id="analyser" type="button">Analyser l'avis</button>
+      <p id="resultat" role="status" aria-live="polite"></p>
+    </main>
+    <script type="module">
+      import { predire, sante } from "./client.js";
+
+      const $ = (id) => document.getElementById(id);
+      const apiUrl = () => $("api-url").value;
+      const cle = () => $("api-key").value;
+      async function actualiserSante() {
+        try {
+          const info = await sante(apiUrl(), cle());
+          $("etat").textContent = `API prête : ${info.model}`;
+        } catch (error) {
+          $("etat").textContent = error instanceof TypeError
+            ? "API injoignable : vérifiez l'adresse, CORS et le serveur."
+            : error.message;
+        }
+      }
+      $("api-key").addEventListener("change", actualiserSante);
+      $("analyser").addEventListener("click", async () => {
+        $("resultat").textContent = "Analyse en cours…";
+        try {
+          const resultat = await predire(apiUrl(), cle(), $("avis").value);
+          const verdict = resultat.label === "INDETERMINE"
+            ? "À faire vérifier par un humain" : resultat.label;
+          $("resultat").textContent = `${verdict} — confiance ${(resultat.score * 100).toFixed(1)} %`;
+        } catch (error) {
+          $("resultat").textContent = error instanceof TypeError
+            ? "API injoignable : vérifiez l'adresse, CORS et le serveur."
+            : error.message;
+        }
+      });
+    </script>
+  </body>
+</html>

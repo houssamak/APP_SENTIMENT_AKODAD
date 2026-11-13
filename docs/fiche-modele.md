@@ -2,9 +2,10 @@
 
 ## 1. Identité
 
-- Projet : `sentiment-app`, version du paquet `0.6.0`.
+- Projet : `sentiment-app`, version du paquet `1.0.0`.
 - Modèle : pipeline TF-IDF et régression logistique, entraîné par `src/train.py`.
-- Artefact local : `models/sentiment.joblib`; il n'est pas inclus dans la roue.
+- Artefact d'entraînement : `models/sentiment.joblib`; copié dans `src/sentiment_app/modele/`
+  pendant la construction et inclus dans la roue, mais jamais versionné dans Git.
 
 ## 2. Usage prévu
 

@@ -26,6 +26,32 @@ class PredictResponse(BaseModel):
     text: str = Field(..., description="Aperçu du texte analysé (100 caractères)")
 
 
+Label = Literal["POSITIVE", "NEGATIVE", "INDETERMINE"]
+
+
+class ChampInvalide(BaseModel):
+    champ: str
+    message: str
+
+
+class DetailErreur(BaseModel):
+    code: str
+    message: str
+    champs: list[ChampInvalide] = Field(default_factory=list)
+
+
+class ErreurV1(BaseModel):
+    """Format stable des erreurs de l'API versionnée."""
+
+    erreur: DetailErreur
+
+
+class ModeleInfo(BaseModel):
+    model: str
+    seuil_abstention: float
+    metriques: dict[str, float | int | str]
+
+
 class HealthResponse(BaseModel):
     """Réponse de l'endpoint de santé."""
     status: str = Field(..., description="OK si le modèle est chargé")

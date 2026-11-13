@@ -25,6 +25,12 @@ def test_sante_api_prete(session):
     assert etat.ok and "TP2" in etat.message
 
 
+def test_cle_absente_donne_un_message_explicite(session, monkeypatch):
+    monkeypatch.setattr(client, "API_KEY", "")
+    resultat = client.predire(session, "Avis valide")
+    assert not resultat.ok and resultat.message == client.CLE
+
+
 def test_avis_positif(session):
     r = client.predire(session, "Livraison rapide, produit conforme, très satisfait")
     assert r.ok and r.label == "POSITIVE" and r.score is not None

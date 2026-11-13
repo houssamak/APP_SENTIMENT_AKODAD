@@ -1,5 +1,12 @@
 # Journal des versions
 
+## [1.0.0] - 2026-11-13
+
+- Paquet `sentiment-app` installable avec le modèle embarqué dans la roue.
+- Ajout de la commande `sentiment` et de la fonction publique `sentiment_app.predict`.
+- Vérification de la roue installée dans un environnement isolé.
+- Limites connues : jeu de démonstration restreint; négation, ironie et avis mixtes difficiles.
+
 ## 0.6.0
 
 - Ajout du paquet installable `sentiment-app` et de la commande `sentiment`.

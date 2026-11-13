@@ -1,30 +1,41 @@
 name: CI
 on: [push, pull_request]
 jobs:
-  tp1:
+  tests:
     runs-on: ubuntu-latest
+    env:
+      API_KEYS: test-client-key-not-a-secret:client,test-admin-key-not-a-secret:admin
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: python -m venv .venv && . .venv/bin/activate && pip install pandas "scikit-learn==1.5.*" pytest "fastapi==0.115.*" "httpx==0.27.*" "uvicorn==0.30.*" "streamlit==1.39.*"
-      - name: Modèle de démonstration, pour les tests de l'API (TP3)
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Install runtime dependencies
+        run: python -m venv .venv && . .venv/bin/activate && pip install pandas "scikit-learn==1.5.*" pytest "fastapi==0.115.*" "httpx==0.27.*" "uvicorn==0.30.*" "streamlit==1.39.*" "python-dotenv==1.*"
+      - name: Train deterministic demo model
         run: . .venv/bin/activate && python src/make_demo.py && python src/train.py
-      - name: Outils de qualité (TP4)
+      - name: Install quality tools
         run: . .venv/bin/activate && pip install -r requirements-dev.txt
-      - name: ruff
+      - name: Install the package in development mode
+        run: . .venv/bin/activate && pip install -e .
+      - name: Ruff
         run: . .venv/bin/activate && ruff check .
-      - name: mypy
+      - name: Mypy
         run: . .venv/bin/activate && mypy api
-      - name: Tests et couverture
+      - name: Python tests and API coverage
         run: . .venv/bin/activate && pytest -q --cov=api --cov-report=term-missing --cov-fail-under=95
-      - name: Construire et installer la roue hors du dépôt (TP6)
+      - name: Web client tests
+        run: node --test web/client.test.mjs
+      - name: Build TP4 distributions
         run: |
           . .venv/bin/activate
           rm -rf dist
-          python -m build --wheel
-          python -m venv /tmp/roue
-          /tmp/roue/bin/pip install dist/*.whl
-          cd /tmp
-          SENTIMENT_MODELE="$GITHUB_WORKSPACE/models/sentiment.joblib" /tmp/roue/bin/sentiment predict "Livraison rapide, produit conforme, très satisfait"
+          mkdir -p src/sentiment_app/modele
+          cp models/sentiment.joblib src/sentiment_app/modele/sentiment.joblib
+          python -m build
+      - name: Verify the tagged TP4 release candidate
+        if: github.ref == 'refs/tags/v1.0.0'
+        run: . .venv/bin/activate && python scripts/verifier_livrable.py
+          python scripts/verifier_livrable.py

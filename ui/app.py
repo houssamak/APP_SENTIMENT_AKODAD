@@ -11,6 +11,7 @@ import pandas as pd
 import streamlit as st
 
 from ui import client
+from ui.analytics import distribution_confiance
 
 st.set_page_config(page_title="Analyse de sentiment")
 st.title("Analyse de sentiment des avis")
@@ -40,14 +41,32 @@ with onglet_avis:
 with onglet_lot:
     fichier = st.file_uploader("Fichier CSV avec une colonne text", type="csv")
     if fichier is not None:
-        avis = pd.read_csv(fichier)
-        if "text" not in avis.columns:
-            st.error("Colonne text absente du fichier.")
+        try:
+            avis = pd.read_csv(fichier)
+        except (pd.errors.ParserError, pd.errors.EmptyDataError, UnicodeDecodeError) as exc:
+            st.error(f"Fichier CSV illisible : {exc}")
         else:
-            reponses = client.predire_lot(session, avis["text"].astype(str).tolist())
-            avis["verdict"] = [client.VERDICTS[r.label] if r.ok and r.label else r.message for r in reponses]
-            avis["confiance"] = [r.score for r in reponses]
-            st.dataframe(avis, use_container_width=True)
-            st.write(client.resumer(reponses))
-            st.download_button("Télécharger les résultats", avis.to_csv(index=False),
-                               file_name="resultats.csv", mime="text/csv")
+            if "text" not in avis.columns:
+                st.error("Colonne text absente du fichier.")
+            elif avis.empty:
+                st.error("Le fichier CSV ne contient aucun avis.")
+            else:
+                reponses = client.predire_lot(session, avis["text"].fillna("").astype(str).tolist())
+                avis["verdict"] = [
+                    client.VERDICTS[r.label] if r.ok and r.label else r.message for r in reponses
+                ]
+                avis["confiance"] = [r.score for r in reponses]
+                st.dataframe(avis, use_container_width=True)
+                st.write(client.resumer(reponses))
+
+                st.subheader("Répartition des verdicts")
+                st.bar_chart(avis["verdict"].value_counts())
+
+                st.subheader("Distribution de la confiance")
+                st.bar_chart(distribution_confiance(avis["confiance"]))
+                st.caption("Les avis dont le verdict est indéterminé (score strictement sous 0,60) sont à vérifier par un humain.")
+
+                st.download_button(
+                    "Télécharger les résultats", avis.to_csv(index=False),
+                    file_name="resultats.csv", mime="text/csv"
+                )
