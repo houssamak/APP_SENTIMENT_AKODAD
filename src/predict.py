@@ -1,51 +1,20 @@
-#!/usr/bin/env python
-"""Prédiction unitaire : la fonction que l'API de la semaine 3 appellera.
+"""Compatibilité avec les imports et la commande historique du TP2."""
 
-Usage :
-  python src/predict.py "Livraison rapide, très satisfait"
-  >>> from predict import predict ; predict("texte")
-"""
 import sys
-from functools import lru_cache
 from pathlib import Path
-from typing import Literal, TypedDict
 
-import joblib
-
-MODELE = Path(__file__).resolve().parents[1] / "models" / "sentiment.joblib"
-
-
-class Prediction(TypedDict):
-    label: Literal["positive", "negative"]
-    score: float
-
-
-@lru_cache(maxsize=1)
-def charger_modele():
-    """Chargé une seule fois par processus, pas à chaque appel."""
-    if not MODELE.exists():
-        raise FileNotFoundError("models/sentiment.joblib absent : lancez python src/train.py")
-    return joblib.load(MODELE)
-
-
-def predict(texte: str) -> Prediction:
-    """Renvoie {'label': 'positive'|'negative', 'score': float}."""
-    if not isinstance(texte, str) or not texte.strip():
-        raise ValueError("texte vide")
-    pipeline = charger_modele()
-    etiquette = pipeline.predict([texte])[0]
-    score = float(pipeline.predict_proba([texte]).max())
-    return {"label": etiquette, "score": round(score, 4)}
-
-
-def main() -> int:
-    if len(sys.argv) < 2:
-        print(__doc__)
-        return 2
-    resultat = predict(" ".join(sys.argv[1:]))
-    print(f"{resultat['label']} (confiance {resultat['score']:.0%})")
-    return 0
-
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from sentiment_app import predict as _module  # noqa: E402
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    if len(sys.argv) < 2:
+        print('Usage : python src/predict.py "texte à analyser"')
+        raise SystemExit(2)
+    try:
+        result = _module.predict(" ".join(sys.argv[1:]))
+    except (FileNotFoundError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        raise SystemExit(1) from exc
+    print(f"{result['label']} (confiance {result['score']:.0%})")
+else:
+    sys.modules[__name__] = _module

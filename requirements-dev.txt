@@ -8,3 +8,4 @@ pre-commit==4.6.2
 # Keep the TP1 runtime tools (Streamlit, MLflow and DVC) within their supported ranges.
 packaging==24.2
 platformdirs==3.11.0
+build>=1.2,<2
